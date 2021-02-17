@@ -1,4 +1,3 @@
-import 'package:darts_scoreboard/models/ui/dart_game.dart';
 import 'package:darts_scoreboard/repos/game_repository.dart';
 import 'package:darts_scoreboard/widgets/dart_game_item.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +53,9 @@ class _HomePageState extends State<HomePage> {
                   // player list button
                   FlatButton(
                     child: Text('VIEW PLAYER STATS'),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/player-stats');
+                    },
                   ),
                 ],
               ),
@@ -71,6 +72,7 @@ class _HomePageState extends State<HomePage> {
 
             Expanded(
               child: (games.length == 0)
+                  // no items placholder
                   ? Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -81,6 +83,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ],
                     )
+                  // list of saved games
                   : ListView.builder(
                       itemBuilder: (_, index) => games[index],
                       itemCount: games.length,

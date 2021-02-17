@@ -1,6 +1,7 @@
+import 'package:darts_scoreboard/pages/player_stats_page.dart';
 import 'package:flutter/material.dart';
 
-import 'pages/home.dart';
+import 'pages/home_page.dart';
 
 void main() {
   runApp(DartsScoreboardApp());
@@ -28,7 +29,13 @@ class DartsScoreboardApp extends StatelessWidget {
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: HomePage(),
+
+      // navigation
+      initialRoute: '/',
+      routes: {
+        '/': (context) => HomePage(),
+        '/player-stats': (context) => PlayerStatsPage(),
+      },
     );
   }
 }
