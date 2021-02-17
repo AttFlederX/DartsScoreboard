@@ -65,6 +65,10 @@ class _HomePageState extends State<HomePage> {
               'Previous games',
             ),
 
+            SizedBox(
+              height: 16.0,
+            ),
+
             Expanded(
               child: (games.length == 0)
                   ? Row(

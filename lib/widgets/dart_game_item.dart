@@ -26,6 +26,7 @@ class DartGameItem extends StatelessWidget {
                   children: [
                     // game id & date
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
                       children: [
                         // id
                         Text(
@@ -45,7 +46,9 @@ class DartGameItem extends StatelessWidget {
                       children: [
                         // num of players
                         Text('${game.players.length} players'),
-                        SizedBox(width: 8.0),
+                        SizedBox(width: 4.0),
+                        _createCircleSeparator(),
+                        SizedBox(width: 4.0),
 
                         // initial score
                         Text('${game.initScore}'),
@@ -60,7 +63,7 @@ class DartGameItem extends StatelessWidget {
               ),
 
               // game state
-              _getGameState(),
+              _getGameState(context),
             ],
           ),
         ),
@@ -107,13 +110,41 @@ class DartGameItem extends StatelessWidget {
     return content;
   }
 
-  Widget _getGameState() {
+  Widget _getGameState(BuildContext context) {
     if (game.hasWinner) {
-      return Text('Won by ${game.winner.name}');
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            'Won by',
+            style: Theme.of(context)
+                .textTheme
+                .bodyText1
+                .copyWith(color: Colors.green[900]),
+          ),
+          SizedBox(
+            height: 4.0,
+          ),
+          Text(
+            '${game.winner.name}',
+            style: Theme.of(context).textTheme.bodyText2,
+          )
+        ],
+      );
     } else if (game.isTerminated) {
-      return Text('Terminated');
+      return Text(
+        'Terminated',
+        style:
+            Theme.of(context).textTheme.bodyText1.copyWith(color: Colors.red),
+      );
     } else {
-      return Text('Ongoing');
+      return Text(
+        'Ongoing',
+        style: Theme.of(context)
+            .textTheme
+            .bodyText1
+            .copyWith(color: Colors.lightBlue),
+      );
     }
   }
 }

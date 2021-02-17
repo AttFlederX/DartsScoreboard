@@ -38,7 +38,7 @@ class GameRepository {
       initScore: 501,
       isDoublingIn: true,
       isNorthernBust: false,
-      isTerminated: false,
+      isTerminated: true,
       players: [
         _players[0],
         _players[2],
