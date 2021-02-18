@@ -44,7 +44,9 @@ class _HomePageState extends State<HomePage> {
                         Text("START NEW GAME"),
                       ],
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/new-game');
+                    },
                   ),
 
                   // spacing

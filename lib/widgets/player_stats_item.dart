@@ -30,6 +30,7 @@ class PlayerStatsItem extends StatelessWidget {
                       '${player.name}',
                       style: Theme.of(context).textTheme.headline5,
                     ),
+                    SizedBox(height: 8.0),
 
                     // player addition date
                     Text(
