@@ -3,12 +3,11 @@ import 'package:darts_scoreboard/models/ui/player.dart';
 class PlayerRepository {
   static final _players = <Player>{
     Player(
-      id: 0,
-      name: 'Niko',
-      gamesWon: 0,
-      addedOn: DateTime.now(),
-      lastGamePlayedOn: DateTime.now(),
-    ),
+        id: 0,
+        name: 'Niko',
+        gamesWon: 0,
+        addedOn: DateTime.now(),
+        lastGamePlayedOn: null),
     Player(
       id: 1,
       name: 'Roman',

@@ -1,6 +1,4 @@
-import 'package:darts_scoreboard/models/ui/dart_game.dart';
 import 'package:darts_scoreboard/models/ui/player.dart';
-import 'package:darts_scoreboard/repos/player_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -10,7 +8,7 @@ class NewGamePage extends StatefulWidget {
 }
 
 class _NewGamePageState extends State<NewGamePage> {
-  List<Player> _addedPlayers = PlayerRepository.getAllPlayers();
+  List<Player> _addedPlayers = [];
   int _initScore = 501;
   bool _isNorthernBust = false;
   bool _isDoublingIn = false;
@@ -60,7 +58,16 @@ class _NewGamePageState extends State<NewGamePage> {
             // add players button
             RaisedButton(
               child: Text('ADD PLAYERS'),
-              onPressed: () {},
+              onPressed: () async {
+                var result = await Navigator.pushNamed(context, '/player-list',
+                    arguments: _addedPlayers);
+
+                if (result != null) {
+                  setState(() {
+                    _addedPlayers = result;
+                  });
+                }
+              },
             ),
             SizedBox(height: 24.0),
 
@@ -76,6 +83,7 @@ class _NewGamePageState extends State<NewGamePage> {
                   flex: 1,
                   child: RadioListTile(
                     title: Text('301'),
+                    dense: true,
                     value: 301,
                     groupValue: _initScore,
                     onChanged: (value) {
@@ -91,6 +99,7 @@ class _NewGamePageState extends State<NewGamePage> {
                   flex: 1,
                   child: RadioListTile(
                     title: Text('501'),
+                    dense: true,
                     value: 501,
                     groupValue: _initScore,
                     onChanged: (value) {
@@ -106,6 +115,7 @@ class _NewGamePageState extends State<NewGamePage> {
                   flex: 1,
                   child: RadioListTile(
                     title: Text('701'),
+                    dense: true,
                     value: 701,
                     groupValue: _initScore,
                     onChanged: (value) {
