@@ -27,4 +27,25 @@ class PlayerRepository {
   static List<Player> getAllPlayers() {
     return _players.toList();
   }
+
+  static bool verifyName(String name) {
+    return !_players.any((pl) => pl.name == name);
+  }
+
+  static Future<Player> addPlayer(String name) async {
+    if (!verifyName(name)) {
+      return null;
+    }
+
+    var newPlayer = Player(
+      id: _players.length,
+      name: name,
+      addedOn: DateTime.now(),
+      gamesWon: 0,
+      lastGamePlayedOn: null,
+    );
+    _players.add(newPlayer);
+
+    return newPlayer;
+  }
 }

@@ -51,26 +51,42 @@ class _PlayerListPageState extends State<PlayerListPage> {
                   ),
                 ],
               )
-            // list of saved games
+            // list of saved players
             : ListView.builder(
                 itemBuilder: (_, index) => players[index],
                 itemCount: players.length,
+                padding: EdgeInsets.only(bottom: 96.0),
               ),
 
         // create & add controls
-        PlayerListControls(players: players)
+        PlayerListControls(
+            players: players,
+            onPlayerAdded: (newPlayer) {
+              setState(() {
+                players.add(PlayerStatsItem(
+                  player: newPlayer,
+                  isSelectable: true,
+                  isSelected: true,
+                ));
+              });
+            }),
       ]),
     );
   }
 }
 
 class PlayerListControls extends StatelessWidget {
-  const PlayerListControls({
+  PlayerListControls({
     Key key,
     @required this.players,
+    @required this.onPlayerAdded,
   }) : super(key: key);
 
   final List<PlayerStatsItem> players;
+  final Function(Player) onPlayerAdded;
+
+  final TextEditingController _newPlayerNameController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +102,56 @@ class PlayerListControls extends StatelessWidget {
             children: [
               FloatingActionButton(
                 child: Icon(Icons.add),
-                onPressed: () {},
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (dialogContext) {
+                      return AlertDialog(
+                        title: Text('Create new player'),
+                        content: TextField(
+                          controller: _newPlayerNameController,
+                          decoration:
+                              InputDecoration(hintText: 'New player name'),
+                        ),
+                        actions: [
+                          TextButton(
+                            child: Text('CREATE'),
+                            onPressed: () async {
+                              // field is empty
+                              if (_newPlayerNameController.text.isEmpty) {
+                                Navigator.of(context).pop();
+                                Scaffold.of(context).showSnackBar(SnackBar(
+                                  content:
+                                      Text('Please enter the player\'s name'),
+                                ));
+                              } else {
+                                // try creating new player
+                                var newPlayer =
+                                    await PlayerRepository.addPlayer(
+                                        _newPlayerNameController.text);
+
+                                if (newPlayer != null) {
+                                  // player was created
+                                  onPlayerAdded(newPlayer);
+                                  Navigator.of(context).pop();
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                    content: Text('Player added'),
+                                  ));
+                                } else {
+                                  // player already exists
+                                  Navigator.of(context).pop();
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                    content: Text('Player already exists'),
+                                  ));
+                                }
+                              }
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
               ),
             ],
           ),
@@ -103,6 +168,7 @@ class PlayerListControls extends StatelessWidget {
 
               if (selectedPlayers.length >= minPlayers &&
                   selectedPlayers.length <= maxPlayers) {
+                // enough player were selected
                 Navigator.pop(context, selectedPlayers);
               } else {
                 Scaffold.of(context).removeCurrentSnackBar();
@@ -112,7 +178,6 @@ class PlayerListControls extends StatelessWidget {
               }
             },
           ),
-          SizedBox(height: 48.0),
         ],
       ),
     );
