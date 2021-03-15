@@ -27,6 +27,7 @@ class DartGameItem extends StatelessWidget {
                     // game id & date
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
                       children: [
                         // id
                         Text(

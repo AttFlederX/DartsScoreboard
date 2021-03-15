@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 children: [
                   // new game button
-                  RaisedButton(
+                  ElevatedButton(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -53,7 +53,7 @@ class _HomePageState extends State<HomePage> {
                   SizedBox(height: 8.0),
 
                   // player list button
-                  FlatButton(
+                  TextButton(
                     child: Text('VIEW PLAYER STATS'),
                     onPressed: () {
                       Navigator.pushNamed(context, '/player-stats');

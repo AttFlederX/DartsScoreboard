@@ -1,4 +1,3 @@
-import 'package:darts_scoreboard/models/ui/player.dart';
 import 'package:darts_scoreboard/repos/player_repository.dart';
 import 'package:darts_scoreboard/widgets/player_stats_item.dart';
 import 'package:flutter/material.dart';

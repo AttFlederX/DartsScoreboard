@@ -1,4 +1,3 @@
-import 'package:darts_scoreboard/models/ui/dart_throw.dart';
 import 'player.dart';
 import 'dart_turn.dart';
 

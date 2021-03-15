@@ -1,3 +1,4 @@
+import 'package:darts_scoreboard/helpers/consts.dart';
 import 'package:darts_scoreboard/models/ui/player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -56,7 +57,7 @@ class _NewGamePageState extends State<NewGamePage> {
             ),
 
             // add players button
-            RaisedButton(
+            ElevatedButton(
               child: Text('ADD PLAYERS'),
               onPressed: () async {
                 var result = await Navigator.pushNamed(context, '/player-list',
@@ -162,9 +163,17 @@ class _NewGamePageState extends State<NewGamePage> {
             SizedBox(height: 32.0),
 
             // play button
-            RaisedButton(
+            ElevatedButton(
               child: Text('PLAY'),
-              onPressed: () {},
+              onPressed: () {
+                if (_addedPlayers.length < minPlayers) {
+                  ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text('Game must have between 2 and 8 players')));
+                } else {
+                  Navigator.pushNamed(context, '/game');
+                }
+              },
             ),
             SizedBox(height: 48.0),
           ],

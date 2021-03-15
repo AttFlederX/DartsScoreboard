@@ -24,7 +24,8 @@ class _PlayerListPageState extends State<PlayerListPage> {
     players = PlayerRepository.getAllPlayers()
         .map((pl) => PlayerStatsItem(
               player: pl,
-              isSelectable: true,
+              onTapped: (isSelected) =>
+                  onPlayerSelectionChanged(pl.id, isSelected),
               isSelected: widget.selectedPlayers.any((spl) => spl.id == pl.id),
             ))
         .toList();
@@ -65,13 +66,35 @@ class _PlayerListPageState extends State<PlayerListPage> {
               setState(() {
                 players.add(PlayerStatsItem(
                   player: newPlayer,
-                  isSelectable: true,
+                  onTapped: (isSelected) =>
+                      onPlayerSelectionChanged(newPlayer.id, isSelected),
                   isSelected: true,
                 ));
               });
             }),
       ]),
     );
+  }
+
+  onPlayerSelectionChanged(int id, bool isSelected) {
+    // find changed player item
+    final changedPlayer =
+        players.firstWhere((pl) => pl.player.id == id, orElse: () => null);
+
+    if (changedPlayer != null) {
+      final newList = List<PlayerStatsItem>.from(players);
+
+      // invert the isSelected flag
+      newList[players.indexOf(changedPlayer)] = PlayerStatsItem(
+        player: changedPlayer.player,
+        onTapped: changedPlayer.onTapped,
+        isSelected: !isSelected,
+      );
+
+      this.setState(() {
+        players = newList;
+      });
+    }
   }
 }
 
@@ -120,7 +143,8 @@ class PlayerListControls extends StatelessWidget {
                               // field is empty
                               if (_newPlayerNameController.text.isEmpty) {
                                 Navigator.of(context).pop();
-                                Scaffold.of(context).showSnackBar(SnackBar(
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(
                                   content:
                                       Text('Please enter the player\'s name'),
                                 ));
@@ -134,13 +158,15 @@ class PlayerListControls extends StatelessWidget {
                                   // player was created
                                   onPlayerAdded(newPlayer);
                                   Navigator.of(context).pop();
-                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(
                                     content: Text('Player added'),
                                   ));
                                 } else {
                                   // player already exists
                                   Navigator.of(context).pop();
-                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(
                                     content: Text('Player already exists'),
                                   ));
                                 }
@@ -158,7 +184,7 @@ class PlayerListControls extends StatelessWidget {
           SizedBox(height: 8.0),
 
           // add player button
-          RaisedButton(
+          ElevatedButton(
             child: Text('ADD SELECTED PLAYERS'),
             onPressed: () {
               var selectedPlayers = players
@@ -168,11 +194,11 @@ class PlayerListControls extends StatelessWidget {
 
               if (selectedPlayers.length >= minPlayers &&
                   selectedPlayers.length <= maxPlayers) {
-                // enough player were selected
+                // enough players were selected
                 Navigator.pop(context, selectedPlayers);
               } else {
-                Scaffold.of(context).removeCurrentSnackBar();
-                Scaffold.of(context).showSnackBar(SnackBar(
+                ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   content: Text('Game must have between 2 and 8 players'),
                 ));
               }

@@ -3,6 +3,7 @@ import 'package:darts_scoreboard/pages/player_list_page.dart';
 import 'package:darts_scoreboard/pages/player_stats_page.dart';
 import 'package:flutter/material.dart';
 
+import 'pages/game_page.dart';
 import 'pages/home_page.dart';
 
 void main() {
@@ -38,6 +39,7 @@ class DartsScoreboardApp extends StatelessWidget {
         var routes = {
           '/': (ctx) => HomePage(),
           '/new-game': (ctx) => NewGamePage(),
+          '/game': (ctx) => GamePage(),
           '/player-stats': (ctx) => PlayerStatsPage(),
           '/player-list': (ctx) => PlayerListPage(settings.arguments),
         };
