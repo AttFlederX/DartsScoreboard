@@ -1,4 +1,5 @@
 import 'package:darts_scoreboard/helpers/consts.dart';
+import 'package:darts_scoreboard/models/ui/dart_game.dart';
 import 'package:darts_scoreboard/models/ui/player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -171,7 +172,18 @@ class _NewGamePageState extends State<NewGamePage> {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text('Game must have between 2 and 8 players')));
                 } else {
-                  Navigator.pushNamed(context, '/game');
+                  // create new game
+                  final newGame = DartGame(
+                    initScore: _initScore,
+                    isDoublingIn: _isDoublingIn,
+                    isNorthernBust: _isNorthernBust,
+                    isTerminated: false,
+                    players: _addedPlayers,
+                    started: DateTime.now(),
+                    winner: null,
+                    turns: [],
+                  );
+                  Navigator.pushNamed(context, '/game', arguments: newGame);
                 }
               },
             ),
