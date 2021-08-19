@@ -39,7 +39,7 @@ class DartsScoreboardApp extends StatelessWidget {
         var routes = {
           '/': (ctx) => HomePage(),
           '/new-game': (ctx) => NewGamePage(),
-          '/game': (ctx) => GamePage(),
+          '/game': (ctx) => GamePage(settings.arguments),
           '/player-stats': (ctx) => PlayerStatsPage(),
           '/player-list': (ctx) => PlayerListPage(settings.arguments),
         };

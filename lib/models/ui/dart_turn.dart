@@ -1,16 +1,16 @@
 import 'package:darts_scoreboard/models/ui/dart_throw.dart';
-import 'player.dart';
+import 'dart_player.dart';
 
 class DartTurn {
   final int id;
 
-  final Player player;
+  final DartPlayer dartPlayer;
   final List<DartThrow> throws;
-  final bool isBust;
+  bool isBust;
 
   DartTurn({
     this.id,
-    this.player,
+    this.dartPlayer,
     this.throws,
     this.isBust,
   });

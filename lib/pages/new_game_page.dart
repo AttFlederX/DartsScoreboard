@@ -1,5 +1,6 @@
 import 'package:darts_scoreboard/helpers/consts.dart';
 import 'package:darts_scoreboard/models/ui/dart_game.dart';
+import 'package:darts_scoreboard/models/ui/dart_player.dart';
 import 'package:darts_scoreboard/models/ui/player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -178,7 +179,9 @@ class _NewGamePageState extends State<NewGamePage> {
                     isDoublingIn: _isDoublingIn,
                     isNorthernBust: _isNorthernBust,
                     isTerminated: false,
-                    players: _addedPlayers,
+                    players: _addedPlayers
+                        .map((pl) => DartPlayer(player: pl, score: _initScore))
+                        .toList(),
                     started: DateTime.now(),
                     winner: null,
                     turns: [],

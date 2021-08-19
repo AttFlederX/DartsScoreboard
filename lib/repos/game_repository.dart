@@ -1,4 +1,5 @@
 import 'package:darts_scoreboard/models/ui/dart_game.dart';
+import 'package:darts_scoreboard/models/ui/dart_player.dart';
 import 'package:darts_scoreboard/repos/player_repository.dart';
 
 class GameRepository {
@@ -12,8 +13,8 @@ class GameRepository {
       isNorthernBust: true,
       isTerminated: false,
       players: [
-        _players[0],
-        _players[1],
+        DartPlayer(player: _players[0], score: 2),
+        DartPlayer(player: _players[1], score: 2),
       ],
       started: DateTime.now(),
       winner: null,
@@ -26,8 +27,8 @@ class GameRepository {
       isNorthernBust: false,
       isTerminated: false,
       players: [
-        _players[1],
-        _players[2],
+        DartPlayer(player: _players[1], score: 2),
+        DartPlayer(player: _players[2], score: 2),
       ],
       started: DateTime.now(),
       winner: _players[1],
@@ -40,8 +41,8 @@ class GameRepository {
       isNorthernBust: false,
       isTerminated: true,
       players: [
-        _players[0],
-        _players[2],
+        DartPlayer(player: _players[0], score: 2),
+        DartPlayer(player: _players[2], score: 2),
       ],
       started: DateTime.now(),
       winner: null,

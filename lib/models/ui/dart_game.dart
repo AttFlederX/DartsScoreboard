@@ -1,10 +1,11 @@
+import 'dart_player.dart';
 import 'player.dart';
 import 'dart_turn.dart';
 
 class DartGame {
   final int id;
 
-  final List<Player> players;
+  final List<DartPlayer> players;
   final Player winner;
 
   final List<DartTurn> turns;

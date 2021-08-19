@@ -1,10 +1,10 @@
 import 'package:darts_scoreboard/models/enums/throw_muliplier.dart';
-import 'player.dart';
+import 'dart_player.dart';
 
 class DartThrow {
   final int id;
 
-  final Player player;
+  final DartPlayer player;
   final int score;
   final ThrowMultiplier mulitplier;
   final bool isBust;
@@ -31,6 +31,23 @@ class DartThrow {
         return 50;
       default:
         return 0;
+    }
+  }
+
+  String get formattedTotalScore {
+    switch (mulitplier) {
+      case ThrowMultiplier.Single:
+        return score.toString();
+      case ThrowMultiplier.Double:
+        return 'D${score.toString()}';
+      case ThrowMultiplier.Triple:
+        return 'T${score.toString()}';
+      case ThrowMultiplier.OuterBullsEye:
+        return 'OBE';
+      case ThrowMultiplier.InnerBullsEye:
+        return 'IBE';
+      default:
+        return '';
     }
   }
 }
