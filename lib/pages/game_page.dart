@@ -43,70 +43,75 @@ class _GamePageState extends State<GamePage> {
       appBar: AppBar(
         title: Text('Game'),
       ),
-      body: Column(
-        children: [
-          // game state
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              // now playing
-              Column(
-                children: [
-                  Text('Now playing'),
-                  Text(
-                    _currentDartTurn.dartPlayer.player.name,
-                    style: Theme.of(context).textTheme.headline5,
-                  ),
-                ],
-              ),
-
-              // player scores
-              _getPlayerScoreItems(widget.dartGame.players),
-            ],
-          ),
-
-          // throw results
-          Row(
-            children: [
-              _getTurnThrowItems(_currentDartTurn.throws),
-              new Container(
-                padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
-                color: Colors.lightGreen,
-                child: new Text('...'),
-              )
-            ],
-          ),
-
-          // bust indicator
-          Text(
-            _currentDartTurn.isBust ? 'You\'re busted, pal!' : '',
-            style: Theme.of(context)
-                .textTheme
-                .headline6
-                .copyWith(color: Colors.red),
-          ),
-
-          // score input
-          Column(
-            children: [
-              TextField(
-                controller: _scoreController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Score',
+      body: Container(
+        padding: EdgeInsets.all(24.0),
+        child: Column(
+          children: [
+            // game state
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                // now playing
+                Column(
+                  children: [
+                    Text('Now playing'),
+                    Text(
+                      _currentDartTurn.dartPlayer.player.name,
+                      style: Theme.of(context).textTheme.headline5,
+                    ),
+                  ],
                 ),
-              ),
-              ElevatedButton(
-                onPressed: _throwAction,
-                child: Text('Throw'),
-              ),
-              ElevatedButton(
-                onPressed: _endTurnAction,
-                child: Text('End turn'),
-              ),
-            ],
-          ),
-        ],
+
+                // player scores
+                _getPlayerScoreItems(widget.dartGame.players),
+              ],
+            ),
+
+            SizedBox(height: 24.0),
+
+            // throw results
+            _getTurnThrowItems(_currentDartTurn.throws),
+
+            SizedBox(height: 16.0),
+
+            // bust indicator
+            _currentDartTurn.isBust
+                ? Text(
+                    'You\'re busted, pal!',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline6
+                        .copyWith(color: Colors.red),
+                  )
+                : Text(_endTurnAction == null ? 'Waiting for throw...' : '',
+                    style: Theme.of(context).textTheme.headline6),
+
+            SizedBox(height: 16.0),
+
+            // score input
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(
+                  controller: _scoreController,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Score',
+                  ),
+                ),
+                SizedBox(height: 16.0),
+                ElevatedButton(
+                  onPressed: _throwAction,
+                  child: Text('Throw'),
+                ),
+                ElevatedButton(
+                  onPressed: _endTurnAction,
+                  child: Text('End turn'),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -216,13 +221,42 @@ class _GamePageState extends State<GamePage> {
 
   _getTurnThrowItems(List<DartThrow> dartThrows) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: dartThrows
-          .map((thr) => new Container(
-                padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
-                color: Colors.lightBlueAccent,
-                child: new Text(thr.formattedTotalScore),
+          .map((thr) => Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: Material(
+                  elevation: 8.0,
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                  color: Colors.lightBlueAccent,
+                  child: new Padding(
+                    padding:
+                        EdgeInsets.symmetric(vertical: 0.0, horizontal: 12.0),
+                    child: Row(
+                      children: [
+                        Text(thr.formattedTotalScore),
+
+                        // remove button
+                        IconButton(
+                            padding: EdgeInsets.zero,
+                            icon: Icon(Icons.close),
+                            onPressed: () {
+                              setState(() {
+                                dartThrows.remove(thr);
+
+                                // disable the end turn option
+                                _throwAction = makeThrow;
+                                _endTurnAction = null;
+                              });
+                            }),
+                      ],
+                    ),
+                  ),
+                ),
               ))
           .toList(),
     );
+
+    _constructScoreInputGrid() {}
   }
 }
