@@ -22,6 +22,9 @@ class _GamePageState extends State<GamePage> {
   Function _throwAction;
   Function _endTurnAction;
 
+  bool _isDouble;
+  bool _isTriple;
+
   @override
   void initState() {
     super.initState();
@@ -35,6 +38,9 @@ class _GamePageState extends State<GamePage> {
     _scoreController = TextEditingController();
 
     _throwAction = makeThrow;
+
+    _isDouble = false;
+    _isTriple = false;
   }
 
   @override
@@ -92,18 +98,8 @@ class _GamePageState extends State<GamePage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                TextField(
-                  controller: _scoreController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Score',
-                  ),
-                ),
+                _constructScoreInputGrid(),
                 SizedBox(height: 16.0),
-                ElevatedButton(
-                  onPressed: _throwAction,
-                  child: Text('Throw'),
-                ),
                 ElevatedButton(
                   onPressed: _endTurnAction,
                   child: Text('End turn'),
@@ -116,8 +112,7 @@ class _GamePageState extends State<GamePage> {
     );
   }
 
-  void makeThrow() {
-    final score = int.tryParse(_scoreController.text);
+  void makeThrow(int score) {
     if (score != null) {
       final newThrow = DartThrow(
           player: _currentDartTurn.dartPlayer,
@@ -183,6 +178,8 @@ class _GamePageState extends State<GamePage> {
       // disable the end turn option
       _throwAction = makeThrow;
       _endTurnAction = null;
+      _isDouble = false;
+      _isTriple = false;
     });
   }
 
@@ -256,7 +253,132 @@ class _GamePageState extends State<GamePage> {
               ))
           .toList(),
     );
+  }
 
-    _constructScoreInputGrid() {}
+  _constructScoreInputGrid() {
+    return Table(
+      children: <TableRow>[
+        // row 1-5
+        TableRow(children: [
+          _createScoreButton(1),
+          _createScoreButton(2),
+          _createScoreButton(3),
+          _createScoreButton(4),
+          _createScoreButton(5),
+        ]),
+        // row 6-10
+        TableRow(children: [
+          _createScoreButton(6),
+          _createScoreButton(7),
+          _createScoreButton(8),
+          _createScoreButton(9),
+          _createScoreButton(10),
+        ]),
+        //row 11-15
+        TableRow(children: [
+          _createScoreButton(11),
+          _createScoreButton(12),
+          _createScoreButton(13),
+          _createScoreButton(14),
+          _createScoreButton(15),
+        ]),
+        // row 16-20
+        TableRow(children: [
+          _createScoreButton(16),
+          _createScoreButton(17),
+          _createScoreButton(18),
+          _createScoreButton(19),
+          _createScoreButton(20),
+        ]),
+        // control row
+        TableRow(children: [
+          _createScoreButton(0, usesMultiplier: false),
+          _createScoreButton(25, usesMultiplier: false),
+          _createScoreButton(50, usesMultiplier: false),
+          // double toggle
+          Container(
+            padding: EdgeInsets.all(4.0),
+            height: 56.0,
+            child: ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  if (_isDouble) {
+                    _isDouble = false;
+                  } else {
+                    _isTriple = false;
+                    _isDouble = true;
+                  }
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                primary: _isDouble ? Colors.blue[900] : Colors.grey,
+              ),
+              child: Text("D"),
+            ),
+          ),
+          // triple toggle
+          Container(
+            padding: EdgeInsets.all(4.0),
+            height: 56.0,
+            child: ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  if (_isTriple) {
+                    _isTriple = false;
+                  } else {
+                    _isDouble = false;
+                    _isTriple = true;
+                  }
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                  primary: _isTriple ? Colors.blue[900] : Colors.grey),
+              child: Text("T"),
+            ),
+          ),
+        ]),
+      ],
+    );
+  }
+
+  _createScoreButton(int score, {bool usesMultiplier = true}) {
+    return Container(
+      padding: EdgeInsets.all(4.0),
+      height: 56.0,
+      child: ElevatedButton(
+        onPressed: () {
+          if (usesMultiplier) {
+            if (_isDouble) {
+              makeThrow(score * 2);
+            } else if (_isTriple) {
+              makeThrow(score * 3);
+            } else {
+              makeThrow(score);
+            }
+          } else {
+            makeThrow(score);
+          }
+
+          setState(() {
+            _isDouble = false;
+            _isTriple = false;
+          });
+        },
+        style: ElevatedButton.styleFrom(padding: EdgeInsets.all(0)),
+        child: Text(_getScoreText(score, usesMultiplier)),
+      ),
+    );
+  }
+
+  _getScoreText(int score, bool usesMultiplier) {
+    if (usesMultiplier) {
+      if (_isDouble) {
+        return 'D${score.toString()}';
+      }
+      if (_isTriple) {
+        return 'T${score.toString()}';
+      }
+    }
+    return score.toString();
   }
 }
