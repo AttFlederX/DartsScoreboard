@@ -17,9 +17,7 @@ class GamePage extends StatefulWidget {
 class _GamePageState extends State<GamePage> {
   int _currentPlayerIdx = 0;
   DartTurn _currentDartTurn;
-  TextEditingController _scoreController;
 
-  Function _throwAction;
   Function _endTurnAction;
 
   bool _isDouble;
@@ -34,10 +32,6 @@ class _GamePageState extends State<GamePage> {
         isBust: false,
         dartPlayer: widget.dartGame.players[_currentPlayerIdx],
         throws: []);
-
-    _scoreController = TextEditingController();
-
-    _throwAction = makeThrow;
 
     _isDouble = false;
     _isTriple = false;
@@ -80,17 +74,8 @@ class _GamePageState extends State<GamePage> {
 
             SizedBox(height: 16.0),
 
-            // bust indicator
-            _currentDartTurn.isBust
-                ? Text(
-                    'You\'re busted, pal!',
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline6
-                        .copyWith(color: Colors.red),
-                  )
-                : Text(_endTurnAction == null ? 'Waiting for throw...' : '',
-                    style: Theme.of(context).textTheme.headline6),
+            // status text
+            _getStatusText(),
 
             SizedBox(height: 16.0),
 
@@ -98,6 +83,7 @@ class _GamePageState extends State<GamePage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // button grid
                 _constructScoreInputGrid(),
                 SizedBox(height: 16.0),
                 ElevatedButton(
@@ -112,6 +98,28 @@ class _GamePageState extends State<GamePage> {
     );
   }
 
+  _getStatusText() {
+    if (_currentDartTurn.isBust) {
+      return Text(
+        'You\'re busted, pal!',
+        style:
+            Theme.of(context).textTheme.headline6.copyWith(color: Colors.red),
+      );
+    } else {
+      if (widget.dartGame.hasWinner) {
+        return Text(
+          '${widget.dartGame.winner.name} has won!',
+          style: Theme.of(context)
+              .textTheme
+              .headline6
+              .copyWith(color: Colors.green[900]),
+        );
+      }
+    }
+    return Text(_endTurnAction == null ? 'Waiting for throw...' : '',
+        style: Theme.of(context).textTheme.headline6);
+  }
+
   void makeThrow(int score) {
     if (score != null) {
       final newThrow = DartThrow(
@@ -122,7 +130,6 @@ class _GamePageState extends State<GamePage> {
       if (_currentDartTurn.throws.length < 3) {
         setState(() {
           _currentDartTurn.throws.add(newThrow);
-          _scoreController.text = '';
         });
       }
 
@@ -132,7 +139,6 @@ class _GamePageState extends State<GamePage> {
           _currentDartTurn.isBust = true;
 
           // enable the end turn option
-          _throwAction = null;
           _endTurnAction = endTurn;
         });
       }
@@ -140,15 +146,8 @@ class _GamePageState extends State<GamePage> {
       if (_currentDartTurn.throws.length == 3) {
         setState(() {
           // enable the end turn option
-          _throwAction = null;
           _endTurnAction = endTurn;
         });
-      }
-
-      FocusScopeNode currentFocus = FocusScope.of(context);
-
-      if (!currentFocus.hasPrimaryFocus) {
-        currentFocus.unfocus();
       }
     }
   }
@@ -161,29 +160,42 @@ class _GamePageState extends State<GamePage> {
 
       widget.dartGame.turns.add(_currentDartTurn);
 
-      // move to next player
-      if (_currentPlayerIdx < widget.dartGame.players.length - 1) {
-        _currentPlayerIdx++;
+      // check if the player had won
+      if (_currentDartTurn.dartPlayer.score == 0) {
+        widget.dartGame.winner = _currentDartTurn.dartPlayer.player;
+
+        // disable the end turn option
+        _endTurnAction = null;
       } else {
-        _currentPlayerIdx = 0;
+        // move to next player
+        if (_currentPlayerIdx < widget.dartGame.players.length - 1) {
+          _currentPlayerIdx++;
+        } else {
+          _currentPlayerIdx = 0;
+        }
+
+        // start new turn
+        _currentDartTurn = DartTurn(
+            id: widget.dartGame.turns.length,
+            isBust: false,
+            dartPlayer: widget.dartGame.players[_currentPlayerIdx],
+            throws: []);
+
+        // disable the end turn option
+        _endTurnAction = null;
+
+        _isDouble = false;
+        _isTriple = false;
       }
-
-      // start new turn
-      _currentDartTurn = DartTurn(
-          id: widget.dartGame.turns.length,
-          isBust: false,
-          dartPlayer: widget.dartGame.players[_currentPlayerIdx],
-          throws: []);
-
-      // disable the end turn option
-      _throwAction = makeThrow;
-      _endTurnAction = null;
-      _isDouble = false;
-      _isTriple = false;
     });
   }
 
   bool _checkIfBust(DartTurn dartTurn) {
+    // bust conditions:
+    //  - score reduced to negative
+    //  - score reduced to 1
+    //  - score reduced to 0, but the final shot was not a double
+
     final playerScore = dartTurn.dartPlayer.score;
     final totalTurnScore = dartTurn.totalScore;
 
@@ -198,6 +210,7 @@ class _GamePageState extends State<GamePage> {
   }
 
   _getPlayerScoreItems(List<DartPlayer> dartPlayers) {
+    // lists the participating players & their respective scores
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: dartPlayers
@@ -228,7 +241,7 @@ class _GamePageState extends State<GamePage> {
                   color: Colors.lightBlueAccent,
                   child: new Padding(
                     padding:
-                        EdgeInsets.symmetric(vertical: 0.0, horizontal: 12.0),
+                        EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
                     child: Row(
                       children: [
                         Text(thr.formattedTotalScore),
@@ -242,7 +255,6 @@ class _GamePageState extends State<GamePage> {
                                 dartThrows.remove(thr);
 
                                 // disable the end turn option
-                                _throwAction = makeThrow;
                                 _endTurnAction = null;
                               });
                             }),
@@ -256,6 +268,10 @@ class _GamePageState extends State<GamePage> {
   }
 
   _constructScoreInputGrid() {
+    if (widget.dartGame.hasWinner) {
+      return Table();
+    }
+
     return Table(
       children: <TableRow>[
         // row 1-5
@@ -292,9 +308,10 @@ class _GamePageState extends State<GamePage> {
         ]),
         // control row
         TableRow(children: [
-          _createScoreButton(0, usesMultiplier: false),
-          _createScoreButton(25, usesMultiplier: false),
-          _createScoreButton(50, usesMultiplier: false),
+          _createScoreButton(0, usesMultiplier: false), // total miss
+          _createScoreButton(25, usesMultiplier: false), // outer bull's eye
+          _createScoreButton(50, usesMultiplier: false), // inner bull's eye
+
           // double toggle
           Container(
             padding: EdgeInsets.all(4.0),
@@ -316,6 +333,7 @@ class _GamePageState extends State<GamePage> {
               child: Text("D"),
             ),
           ),
+
           // triple toggle
           Container(
             padding: EdgeInsets.all(4.0),

@@ -6,7 +6,7 @@ class DartGame {
   final int id;
 
   final List<DartPlayer> players;
-  final Player winner;
+  Player winner;
 
   final List<DartTurn> turns;
   final int initScore;
