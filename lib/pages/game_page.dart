@@ -202,6 +202,13 @@ class _GamePageState extends State<GamePage> {
     //  - score reduced to negative
     //  - score reduced to 1
     //  - score reduced to 0, but the final shot was not a double or a bullseye
+    //  - doubling-in is on & first shot is not a double
+
+    if (widget.dartGame.isDoublingIn &&
+        widget.dartGame.turns.length < widget.dartGame.players.length &&
+        dartTurn.throws.first.mulitplier != ThrowMultiplier.Double) {
+      return true;
+    }
 
     final playerScore = dartTurn.dartPlayer.score;
     final totalTurnScore = dartTurn.totalScore;
