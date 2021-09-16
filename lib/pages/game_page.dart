@@ -18,7 +18,7 @@ class _GamePageState extends State<GamePage> {
   int _currentPlayerIdx = 0;
   DartTurn _currentDartTurn;
 
-  Function _endTurnAction;
+  Function _endAction;
 
   bool _isDouble;
   bool _isTriple;
@@ -72,12 +72,12 @@ class _GamePageState extends State<GamePage> {
             // throw results
             _getTurnThrowItems(_currentDartTurn.throws),
 
-            SizedBox(height: 16.0),
+            SizedBox(height: 24.0),
 
             // status text
             _getStatusText(),
 
-            SizedBox(height: 16.0),
+            SizedBox(height: 24.0),
 
             // score input
             Column(
@@ -86,9 +86,11 @@ class _GamePageState extends State<GamePage> {
                 // button grid
                 _constructScoreInputGrid(),
                 SizedBox(height: 16.0),
+                // end turn/game button
                 ElevatedButton(
-                  onPressed: _endTurnAction,
-                  child: Text('End turn'),
+                  onPressed: _endAction,
+                  child:
+                      Text(widget.dartGame.hasWinner ? 'End game' : 'End turn'),
                 ),
               ],
             ),
@@ -116,16 +118,16 @@ class _GamePageState extends State<GamePage> {
         );
       }
     }
-    return Text(_endTurnAction == null ? 'Waiting for throw...' : '',
+    return Text(_endAction == null ? 'Waiting for throw...' : '',
         style: Theme.of(context).textTheme.headline6);
   }
 
-  void makeThrow(int score) {
+  void makeThrow(int score, ThrowMultiplier multiplier) {
     if (score != null) {
       final newThrow = DartThrow(
           player: _currentDartTurn.dartPlayer,
           score: score,
-          mulitplier: ThrowMultiplier.Single);
+          mulitplier: multiplier);
 
       if (_currentDartTurn.throws.length < 3) {
         setState(() {
@@ -139,15 +141,24 @@ class _GamePageState extends State<GamePage> {
           _currentDartTurn.isBust = true;
 
           // enable the end turn option
-          _endTurnAction = endTurn;
+          _endAction = endTurn;
         });
-      }
+      } else {
+        // detect win
+        if (_checkIfWin(_currentDartTurn)) {
+          setState(() {
+            widget.dartGame.winner = _currentDartTurn.dartPlayer.player;
 
-      if (_currentDartTurn.throws.length == 3) {
-        setState(() {
-          // enable the end turn option
-          _endTurnAction = endTurn;
-        });
+            _endAction = endGame;
+          });
+        } else {
+          if (_currentDartTurn.throws.length == 3) {
+            setState(() {
+              // enable the end turn option
+              _endAction = endTurn;
+            });
+          }
+        }
       }
     }
   }
@@ -160,41 +171,37 @@ class _GamePageState extends State<GamePage> {
 
       widget.dartGame.turns.add(_currentDartTurn);
 
-      // check if the player had won
-      if (_currentDartTurn.dartPlayer.score == 0) {
-        widget.dartGame.winner = _currentDartTurn.dartPlayer.player;
-
-        // disable the end turn option
-        _endTurnAction = null;
+      // move to next player
+      if (_currentPlayerIdx < widget.dartGame.players.length - 1) {
+        _currentPlayerIdx++;
       } else {
-        // move to next player
-        if (_currentPlayerIdx < widget.dartGame.players.length - 1) {
-          _currentPlayerIdx++;
-        } else {
-          _currentPlayerIdx = 0;
-        }
-
-        // start new turn
-        _currentDartTurn = DartTurn(
-            id: widget.dartGame.turns.length,
-            isBust: false,
-            dartPlayer: widget.dartGame.players[_currentPlayerIdx],
-            throws: []);
-
-        // disable the end turn option
-        _endTurnAction = null;
-
-        _isDouble = false;
-        _isTriple = false;
+        _currentPlayerIdx = 0;
       }
+
+      // start new turn
+      _currentDartTurn = DartTurn(
+          id: widget.dartGame.turns.length,
+          isBust: false,
+          dartPlayer: widget.dartGame.players[_currentPlayerIdx],
+          throws: []);
+
+      // disable the end turn option
+      _endAction = null;
+
+      _isDouble = false;
+      _isTriple = false;
     });
+  }
+
+  void endGame() {
+    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
   }
 
   bool _checkIfBust(DartTurn dartTurn) {
     // bust conditions:
     //  - score reduced to negative
     //  - score reduced to 1
-    //  - score reduced to 0, but the final shot was not a double
+    //  - score reduced to 0, but the final shot was not a double or a bullseye
 
     final playerScore = dartTurn.dartPlayer.score;
     final totalTurnScore = dartTurn.totalScore;
@@ -202,7 +209,26 @@ class _GamePageState extends State<GamePage> {
     if (totalTurnScore > playerScore ||
         playerScore - totalTurnScore == 1 ||
         (playerScore - totalTurnScore == 0 &&
-            dartTurn.throws.last.mulitplier != ThrowMultiplier.Double)) {
+            dartTurn.throws.last.mulitplier != ThrowMultiplier.Double &&
+            dartTurn.throws.last.mulitplier != ThrowMultiplier.OuterBullsEye &&
+            dartTurn.throws.last.mulitplier != ThrowMultiplier.InnerBullsEye)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  bool _checkIfWin(DartTurn dartTurn) {
+    // win condition:
+    //  - score reduced to 0, and the final shot was a double
+
+    final playerScore = dartTurn.dartPlayer.score;
+    final totalTurnScore = dartTurn.totalScore;
+
+    if (playerScore - totalTurnScore == 0 &&
+        (dartTurn.throws.last.mulitplier == ThrowMultiplier.Double ||
+            dartTurn.throws.last.mulitplier == ThrowMultiplier.OuterBullsEye ||
+            dartTurn.throws.last.mulitplier == ThrowMultiplier.InnerBullsEye)) {
       return true;
     }
 
@@ -255,7 +281,11 @@ class _GamePageState extends State<GamePage> {
                                 dartThrows.remove(thr);
 
                                 // disable the end turn option
-                                _endTurnAction = null;
+                                _endAction = null;
+                                // cancel bust
+                                _currentDartTurn.isBust = false;
+                                // cancel player win
+                                widget.dartGame.winner = null;
                               });
                             }),
                       ],
@@ -309,8 +339,14 @@ class _GamePageState extends State<GamePage> {
         // control row
         TableRow(children: [
           _createScoreButton(0, usesMultiplier: false), // total miss
-          _createScoreButton(25, usesMultiplier: false), // outer bull's eye
-          _createScoreButton(50, usesMultiplier: false), // inner bull's eye
+          _createScoreButton(25,
+              usesMultiplier: false,
+              overriddenMultiplier:
+                  ThrowMultiplier.OuterBullsEye), // outer bullseye
+          _createScoreButton(50,
+              usesMultiplier: false,
+              overriddenMultiplier:
+                  ThrowMultiplier.InnerBullsEye), // inner bullseye
 
           // double toggle
           Container(
@@ -359,7 +395,9 @@ class _GamePageState extends State<GamePage> {
     );
   }
 
-  _createScoreButton(int score, {bool usesMultiplier = true}) {
+  _createScoreButton(int score,
+      {bool usesMultiplier = true,
+      ThrowMultiplier overriddenMultiplier = ThrowMultiplier.Single}) {
     return Container(
       padding: EdgeInsets.all(4.0),
       height: 56.0,
@@ -367,14 +405,14 @@ class _GamePageState extends State<GamePage> {
         onPressed: () {
           if (usesMultiplier) {
             if (_isDouble) {
-              makeThrow(score * 2);
+              makeThrow(score, ThrowMultiplier.Double);
             } else if (_isTriple) {
-              makeThrow(score * 3);
+              makeThrow(score, ThrowMultiplier.Triple);
             } else {
-              makeThrow(score);
+              makeThrow(score, ThrowMultiplier.Single);
             }
           } else {
-            makeThrow(score);
+            makeThrow(score, overriddenMultiplier);
           }
 
           setState(() {
