@@ -67,7 +67,12 @@ class _GamePageState extends State<GamePage> {
               ],
             ),
 
-            SizedBox(height: 24.0),
+            SizedBox(height: 16.0),
+
+            // active options
+            _getGameOptions(),
+
+            SizedBox(height: 16.0),
 
             // throw results
             _getTurnThrowItems(_currentDartTurn.throws),
@@ -95,6 +100,46 @@ class _GamePageState extends State<GamePage> {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _getGameOptions() {
+    var content = Row(
+      children: [],
+      mainAxisAlignment: MainAxisAlignment.center,
+    );
+
+    if (widget.dartGame.hasNoFinalThrowRules) {
+      content.children.addAll([
+        _createCircleSeparator(),
+        SizedBox(width: 4.0),
+        Text('No final throw rules'),
+        SizedBox(width: 8.0),
+      ]);
+    }
+
+    if (widget.dartGame.isDoublingIn) {
+      content.children.addAll([
+        _createCircleSeparator(),
+        SizedBox(width: 4.0),
+        Text('Double-in'),
+        SizedBox(width: 8.0),
+      ]);
+    }
+
+    return content;
+  }
+
+  Widget _createCircleSeparator() {
+    return SizedBox(
+      width: 8,
+      height: 8,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.lightBlue,
+          borderRadius: BorderRadius.circular(4.0),
         ),
       ),
     );
@@ -273,42 +318,43 @@ class _GamePageState extends State<GamePage> {
   _getTurnThrowItems(List<DartThrow> dartThrows) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: dartThrows
-          .map((thr) => Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: Material(
-                  elevation: 8.0,
-                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                  color: Colors.lightBlueAccent,
-                  child: new Padding(
-                    padding:
-                        EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
-                    child: Row(
-                      children: [
-                        Text(thr.formattedTotalScore),
+      children: dartThrows.isEmpty
+          ? [SizedBox(height: 48.0)]
+          : dartThrows
+              .map((thr) => Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Material(
+                      elevation: 8.0,
+                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                      color: Colors.lightBlueAccent,
+                      child: new Padding(
+                        padding: EdgeInsets.only(left: 8.0),
+                        child: Row(
+                          children: [
+                            Text(thr.formattedTotalScore),
 
-                        // remove button
-                        IconButton(
-                            padding: EdgeInsets.zero,
-                            icon: Icon(Icons.close),
-                            onPressed: () {
-                              setState(() {
-                                dartThrows.remove(thr);
+                            // remove button
+                            IconButton(
+                                padding: EdgeInsets.zero,
+                                icon: Icon(Icons.close),
+                                onPressed: () {
+                                  setState(() {
+                                    dartThrows.remove(thr);
 
-                                // disable the end turn option
-                                _endAction = null;
-                                // cancel bust
-                                _currentDartTurn.isBust = false;
-                                // cancel player win
-                                widget.dartGame.winner = null;
-                              });
-                            }),
-                      ],
+                                    // disable the end turn option
+                                    _endAction = null;
+                                    // cancel bust
+                                    _currentDartTurn.isBust = false;
+                                    // cancel player win
+                                    widget.dartGame.winner = null;
+                                  });
+                                }),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ))
-          .toList(),
+                  ))
+              .toList(),
     );
   }
 
