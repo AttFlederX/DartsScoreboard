@@ -198,7 +198,7 @@ class _GamePageState extends State<GamePage> {
   }
 
   bool _checkIfBust(DartTurn dartTurn) {
-    // bust conditions:
+    // bust conditions (if final throw rules are active):
     //  - score reduced to negative
     //  - score reduced to 1
     //  - score reduced to 0, but the final shot was not a double or a bullseye
@@ -213,6 +213,10 @@ class _GamePageState extends State<GamePage> {
     final playerScore = dartTurn.dartPlayer.score;
     final totalTurnScore = dartTurn.totalScore;
 
+    if (widget.dartGame.hasNoFinalThrowRules) {
+      return false;
+    }
+
     if (totalTurnScore > playerScore ||
         playerScore - totalTurnScore == 1 ||
         (playerScore - totalTurnScore == 0 &&
@@ -226,11 +230,15 @@ class _GamePageState extends State<GamePage> {
   }
 
   bool _checkIfWin(DartTurn dartTurn) {
-    // win condition:
+    // win condition (if final throw rules are active):
     //  - score reduced to 0, and the final shot was a double
 
     final playerScore = dartTurn.dartPlayer.score;
     final totalTurnScore = dartTurn.totalScore;
+
+    if (widget.dartGame.hasNoFinalThrowRules) {
+      return playerScore <= totalTurnScore;
+    }
 
     if (playerScore - totalTurnScore == 0 &&
         (dartTurn.throws.last.mulitplier == ThrowMultiplier.Double ||

@@ -10,7 +10,7 @@ class GameRepository {
       id: 0,
       initScore: 301,
       isDoublingIn: true,
-      isNorthernBust: true,
+      hasNoFinalThrowRules: true,
       isTerminated: false,
       players: [
         DartPlayer(player: _players[0], score: 2),
@@ -24,7 +24,7 @@ class GameRepository {
       id: 1,
       initScore: 701,
       isDoublingIn: false,
-      isNorthernBust: false,
+      hasNoFinalThrowRules: false,
       isTerminated: false,
       players: [
         DartPlayer(player: _players[1], score: 2),
@@ -38,7 +38,7 @@ class GameRepository {
       id: 2,
       initScore: 501,
       isDoublingIn: true,
-      isNorthernBust: false,
+      hasNoFinalThrowRules: false,
       isTerminated: true,
       players: [
         DartPlayer(player: _players[0], score: 2),

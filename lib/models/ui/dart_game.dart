@@ -11,7 +11,7 @@ class DartGame {
   final List<DartTurn> turns;
   final int initScore;
 
-  final bool isNorthernBust;
+  final bool hasNoFinalThrowRules;
   final bool isDoublingIn;
 
   final DateTime started;
@@ -23,7 +23,7 @@ class DartGame {
     this.winner,
     this.turns,
     this.initScore,
-    this.isNorthernBust,
+    this.hasNoFinalThrowRules,
     this.isDoublingIn,
     this.started,
     this.isTerminated,

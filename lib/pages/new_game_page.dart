@@ -13,7 +13,7 @@ class NewGamePage extends StatefulWidget {
 class _NewGamePageState extends State<NewGamePage> {
   List<Player> _addedPlayers = [];
   int _initScore = 501;
-  bool _isNorthernBust = false;
+  bool _hasNoFinalThrowRules = false;
   bool _isDoublingIn = false;
 
   @override
@@ -141,11 +141,11 @@ class _NewGamePageState extends State<NewGamePage> {
               children: [
                 // northern bust
                 CheckboxListTile(
-                  title: Text('Northern bust'),
-                  value: _isNorthernBust,
+                  title: Text('No final throw rules'),
+                  value: _hasNoFinalThrowRules,
                   onChanged: (value) {
                     setState(() {
-                      _isNorthernBust = value;
+                      _hasNoFinalThrowRules = value;
                     });
                   },
                 ),
@@ -177,7 +177,7 @@ class _NewGamePageState extends State<NewGamePage> {
                   final newGame = DartGame(
                     initScore: _initScore,
                     isDoublingIn: _isDoublingIn,
-                    isNorthernBust: _isNorthernBust,
+                    hasNoFinalThrowRules: _hasNoFinalThrowRules,
                     isTerminated: false,
                     players: _addedPlayers
                         .map((pl) => DartPlayer(player: pl, score: _initScore))

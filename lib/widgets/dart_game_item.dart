@@ -90,11 +90,11 @@ class DartGameItem extends StatelessWidget {
       children: [],
     );
 
-    if (game.isNorthernBust) {
+    if (game.hasNoFinalThrowRules) {
       content.children.addAll([
         _createCircleSeparator(),
         SizedBox(width: 4.0),
-        Text('Northern bust'),
+        Text('No final throw rules'),
         SizedBox(width: 8.0),
       ]);
     }
